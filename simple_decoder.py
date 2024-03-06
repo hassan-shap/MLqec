@@ -36,7 +36,9 @@ def idx_to_coord(d):
     return q_list, sx_list, sz_list
 
 
-def decoder(d, syndrome):
+def decoder(d, stab_matrices, syndrome):
+    x_stab_to_c,z_stab_to_c,sx_list,sz_list= stab_matrices 
+
 
     syndrome_x = syndrome[np.argwhere(syndrome< (d**2-1)//2)[:,0]]
     syndrome_z = syndrome[np.argwhere(syndrome>= (d**2-1)//2)[:,0]]
@@ -77,58 +79,64 @@ def decoder(d, syndrome):
 
     return np.argwhere(recovery_x>0)[:,0], np.argwhere(recovery_z>0)[:,0]
 
+def code_initialization(d):
+    c_list = np.arange((d+1)//2) # c as defined in the paper
+
+    x_stab_to_c = np.zeros((d**2-1)//2,dtype=int)
+    t = 0
+    for r in [-1,1]:
+        for c in c_list:
+            for i in range((d-1)//2 ):
+                x_stab_to_c[a_func(t,r,c,i)] = c
+
+    z_stab_to_c = np.zeros((d**2-1)//2,dtype=int)
+    t = 1
+    for r in [-1,1]:
+        for c in c_list:
+            for i in range((d-1)//2 ):
+                z_stab_to_c[a_func(t,r,c,i)-(d**2-1)//2] = c
+
+    q_list, sx_list, sz_list = idx_to_coord(d)
+
+    # define stabilizers 
+    s_mat = np.zeros(((d**2-1), 2*d**2))
+    for sx in sx_list:
+        r_sx = sx_list[sx]
+        for q in q_list:
+            r_q = q_list[q]
+            if (r_q[0]-r_sx[0])**2+(r_q[1]-r_sx[1])**2 < 1:
+                # print(sx,q)
+                s_mat[int(sx),int(q)] = 1
+
+    for sz in sz_list:
+        r_sz = sz_list[sz]
+        for q in q_list:
+            r_q = q_list[q]
+            if (r_q[0]-r_sz[0])**2+(r_q[1]-r_sz[1])**2 < 1:
+                # print(sx,q)
+                s_mat[int(sz),d**2+ int(q)] = 1
+
+    # define logical operators
+    logicals = np.zeros((2,2*d**2))
+    logicals[0,np.arange(0,d**2,d)]= 1 # x logical
+    logicals[1,d**2+np.arange(d**2-d, d**2)]= 1 # z logical
+
+    stab_matrices = (x_stab_to_c,z_stab_to_c,sx_list,sz_list)
+    return stab_matrices, s_mat, logicals
 #################################################
 #################################################
 
-d = 11 # code distance, must be an odd number 
+d = 7 # code distance, must be an odd number 
 Niter = 100 # number of random iterations for error
 p_err = 0.2 # error probability (depolarizing channel)
 logical_err_list = np.zeros((Niter, 2))
-
-c_list = np.arange((d+1)//2) # c as defined in the paper
 # qubit indices as defined in the paper
 q_func = lambda t,r,c,i: int(((d-1)/2+r*(i+1)+1)*(t*d+(1-t)) -1 + 2*c*(d*(1-t)-t))
 # ancilla indices as defined in the paper
 a_func = lambda t,r,c,i: int((d**2-1)/4*(1+2*t) + ((r-1)/2+r*i)*(d+1)/2 +c )
 
-x_stab_to_c = np.zeros((d**2-1)//2,dtype=int)
-t = 0
-for r in [-1,1]:
-    for c in c_list:
-        for i in range((d-1)//2 ):
-            x_stab_to_c[a_func(t,r,c,i)] = c
-
-z_stab_to_c = np.zeros((d**2-1)//2,dtype=int)
-t = 1
-for r in [-1,1]:
-    for c in c_list:
-        for i in range((d-1)//2 ):
-            z_stab_to_c[a_func(t,r,c,i)-(d**2-1)//2] = c
-
-q_list, sx_list, sz_list = idx_to_coord(d)
-
-# define stabilizers 
-s_mat = np.zeros(((d**2-1), 2*d**2))
-for sx in sx_list:
-    r_sx = sx_list[sx]
-    for q in q_list:
-        r_q = q_list[q]
-        if (r_q[0]-r_sx[0])**2+(r_q[1]-r_sx[1])**2 < 1:
-            # print(sx,q)
-            s_mat[int(sx),int(q)] = 1
-
-for sz in sz_list:
-    r_sz = sz_list[sz]
-    for q in q_list:
-        r_q = q_list[q]
-        if (r_q[0]-r_sz[0])**2+(r_q[1]-r_sz[1])**2 < 1:
-            # print(sx,q)
-            s_mat[int(sz),d**2+ int(q)] = 1
-
-# define logical operators
-logicals = np.zeros((2,2*d**2))
-logicals[0,np.arange(0,d**2,d)]= 1 # x logical
-logicals[1,d**2+np.arange(d**2-d, d**2)]= 1 # z logical
+stab_matrices, s_mat, logicals = code_initialization(d)
+#  matrix to calculate the commutation relation in stabilizer formalism
 comm_mat = np.kron([[0,1],[1,0]],np.eye(d**2))
 #####################################################
 
@@ -149,7 +157,7 @@ for iter in range(Niter):
     syndrome = (s_mat@ (comm_mat @err_vec)) % 2
     active_syndrome_idx = np.argwhere(syndrome>0)[:,0]
 
-    recovery_x, recovery_z = decoder(d, active_syndrome_idx)
+    recovery_x, recovery_z = decoder(d, stab_matrices, active_syndrome_idx)
 
     err_rec = np.copy(err_vec)
     err_rec[recovery_z] += 1
