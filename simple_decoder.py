@@ -3,6 +3,10 @@ import random
 
 
 def idx_to_coord(d):
+    """
+    This is to keep track of index assignment to data and ancilla qubits
+    c.f. Figure 9 of arXiv:2202.05741
+    """
     q_list = {}
     sz_list = {}
     c_sz = (d**2-1)-1
@@ -37,9 +41,10 @@ def idx_to_coord(d):
 
 
 def decoder(d, stab_matrices, syndrome):
+    """
+        Simple decoder as defined in the paper.
+    """
     x_stab_to_c,z_stab_to_c,sx_list,sz_list= stab_matrices 
-
-
     syndrome_x = syndrome[np.argwhere(syndrome< (d**2-1)//2)[:,0]]
     syndrome_z = syndrome[np.argwhere(syndrome>= (d**2-1)//2)[:,0]]
     
@@ -80,6 +85,16 @@ def decoder(d, stab_matrices, syndrome):
     return np.argwhere(recovery_x>0)[:,0], np.argwhere(recovery_z>0)[:,0]
 
 def code_initialization(d):
+    """
+        Calculate necessary mappings from qubit indices to qubit location,
+        stabilizer matrix
+        logical operator matrix
+        input:
+            d :int  surface code distance
+        output:
+            s_mat : X, Z stabilizer matrix
+            logicals : X, Z logical operator matrix
+    """
     c_list = np.arange((d+1)//2) # c as defined in the paper
 
     x_stab_to_c = np.zeros((d**2-1)//2,dtype=int)
