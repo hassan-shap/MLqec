@@ -56,9 +56,9 @@ def data_file_gen(d,JSON_PATH):
             json_file.write(json.dumps(qlist) + '\n')
             # print("Done!")
 
-d_list = [5] # code distance, must be an odd number 
-Niter = 10 # number of random iterations for error
-p_err_list = [.12]#np.arange(0.01,0.31,0.01)
+d_list = [7] # code distance, must be an odd number 
+Niter = 1000000 # number of random iterations for error
+p_err_list = [.1]#np.arange(0.01,0.31,0.01)
 for p_err in p_err_list:
     # p_err = 0.15 # error probability (depolarizing channel)
     for d in d_list:
