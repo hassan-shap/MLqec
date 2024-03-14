@@ -146,3 +146,48 @@ def code_initialization(d):
     stab_matrices = (x_stab_to_c,z_stab_to_c,sx_list,sz_list)
     return stab_matrices, s_mat, logicals
 
+def spiral_coord(d, stab_matrices):
+    max_n = d+1
+
+    spiral = {}
+    counter = 0
+    x0 = -0.5
+    y0 = -0.5
+    spiral[(x0,y0)] = counter 
+    counter += 1
+    for i in range(1, max_n, 2):
+        x1 = x0+ i
+        for x_coord in np.arange(x0+1,x1+1):
+            spiral[(x_coord,y0)] = counter
+            counter += 1            
+        x0 = x1
+
+        y1 = y0+ i
+        for y_coord in np.arange(y0+1,y1+1):
+            spiral[(x0,y_coord)] = counter
+            counter += 1
+        y0 = y1
+
+        x1 -= i+1
+        for x_coord in np.arange(x0-1,x1-1,-1):
+            spiral[(x_coord,y0)] = counter
+            counter += 1
+        x0 = x1
+
+        if i < max_n-1:
+            y1 -= i+1
+        else:
+            y1 -= i       
+        for y_coord in np.arange(y0-1,y1-1,-1):
+            spiral[(x0,y_coord)] = counter
+            counter += 1
+        y0 = y1
+        
+    _, _, sx_list, sz_list = stab_matrices
+    perm_mat = np.zeros(d**2-1, dtype=np.int32)
+    for idx in sx_list:
+        perm_mat[int(idx)] = spiral[sx_list[idx]]
+    for idx in sz_list:
+        perm_mat[int(idx)] = spiral[sz_list[idx]]
+
+    return perm_mat 
