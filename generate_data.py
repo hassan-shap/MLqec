@@ -56,9 +56,9 @@ def data_file_gen(d,JSON_PATH):
             json_file.write(json.dumps(qlist) + '\n')
             # print("Done!")
 
-d_list = [7] # code distance, must be an odd number 
-Niter = 1000000 # number of random iterations for error
-p_err_list = [.1]#np.arange(0.01,0.31,0.01)
+d_list = [3] # code distance, must be an odd number 
+Niter = 1000 # number of random iterations for error
+p_err_list = np.arange(0.01,0.31,0.01)
 for p_err in p_err_list:
     # p_err = 0.15 # error probability (depolarizing channel)
     for d in d_list:
@@ -66,6 +66,6 @@ for p_err in p_err_list:
         # q_func = lambda t,r,c,i: int(((d-1)/2+r*(i+1)+1)*(t*d+(1-t)) -1 + 2*c*(d*(1-t)-t))
         # # ancilla indices as defined in the paper
         # a_func = lambda t,r,c,i: int((d**2-1)/4*(1+2*t) + ((r-1)/2+r*i)*(d+1)/2 +c )
-        fname = f"datasets/train_d_{d}_p_{p_err:.2f}.json"
-        # fname = f"datasets/test_d_{d}_p_{p_err:.2f}.json"
+        # fname = f"datasets/train_d_{d}_p_{p_err:.2f}.json"
+        fname = f"datasets/test_d_{d}_p_{p_err:.2f}.json"
         data_file_gen(d,fname)

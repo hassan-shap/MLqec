@@ -12,7 +12,6 @@ def data_file_gen(d,JSON_PATH):
     #####################################################
 
     perm_mat = spiral_coord(d, stab_matrices)
-
     ### simulation
     pauli = [0,1,2,3] # I X Z Y
     # JSON_PATH = f"datasets/test_d_{d}_p_{p_err:.2f}.json"
@@ -39,9 +38,9 @@ def data_file_gen(d,JSON_PATH):
             syndrome = (s_mat@ (comm_mat @err_vec)) % 2
             active_syndrome_idx = np.argwhere(syndrome>0)[:,0]
             syndrome[(d**2-1)//2:] = 2*syndrome[(d**2-1)//2:]
-            syndrome_train = np.zeros((d+1)**2 )
+            syndrome_train = np.zeros((d_max+1)**2 )
             syndrome_train[perm_mat] = syndrome
-
+            # print(syndrome_train)
             recovery_x, recovery_z = decoder(d, stab_matrices, active_syndrome_idx)
 
             err_rec = np.copy(err_vec)
@@ -53,25 +52,21 @@ def data_file_gen(d,JSON_PATH):
             logical_err_list = (logicals@ (comm_mat @ err_rec) % 2)
         
             qlist['errors'] = err_dict 
-            # qlist['input'] = syndrome.tolist() 
             qlist['input'] = syndrome_train.tolist() 
             qlist['target'] = logical_err_list.tolist()
-
+            # print("syndrome_train after: ", syndrome_train[perm_mat[ids[:num_mask]]])
+            
             # Serializing json
             json_file.write(json.dumps(qlist) + '\n')
             # print("Done!")
 
-d_list = [7] # code distance, must be an odd number 
-Niter = 1000 # number of random iterations for error
-p_err_list =  [0.15] # np.arange(0.01,0.31,0.01) # 
+d_max = 7
+d_list = [3] # code distance, must be an odd number 
+Niter = 100000 # number of random iterations for error
+p_err_list = [0.1] # np.arange(0.01,0.31,0.01) # 
 for p_err in p_err_list:
-    # p_err = 0.15 # error probability (depolarizing channel)
     for d in d_list:
-        # # qubit indices as defined in the paper
-        # q_func = lambda t,r,c,i: int(((d-1)/2+r*(i+1)+1)*(t*d+(1-t)) -1 + 2*c*(d*(1-t)-t))
-        # # ancilla indices as defined in the paper
-        # a_func = lambda t,r,c,i: int((d**2-1)/4*(1+2*t) + ((r-1)/2+r*i)*(d+1)/2 +c )
-        # fname = f"datasets/train_enc_d_{d}_p_{p_err:.2f}.json"
-        fname = f"datasets/val_enc_d_{d}_p_{p_err:.2f}.json"
-        # fname = f"datasets/test_enc_d_{d}_p_{p_err:.2f}.json"
+        fname = f"datasets/train_enc_pad_{d_max}_d_{d}_p_{p_err:.2f}.json"
+        # fname = f"datasets/val_enc_pad_{d_max}_d_{d}_p_{p_err:.2f}.json"
+        # fname = f"datasets/test_enc_pad_{d_max}_d_{d}_p_{p_err:.2f}.json"
         data_file_gen(d,fname)

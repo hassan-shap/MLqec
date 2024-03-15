@@ -12,7 +12,7 @@ def data_file_gen(d,JSON_PATH):
     #####################################################
 
     perm_mat = spiral_coord(d, stab_matrices)
-
+    ids = np.arange(d**2-1).astype(int)
     ### simulation
     pauli = [0,1,2,3] # I X Z Y
     # JSON_PATH = f"datasets/test_d_{d}_p_{p_err:.2f}.json"
@@ -37,33 +37,44 @@ def data_file_gen(d,JSON_PATH):
             err_vec[d**2 + y_err] = 1
 
             syndrome = (s_mat@ (comm_mat @err_vec)) % 2
-            active_syndrome_idx = np.argwhere(syndrome>0)[:,0]
+            # active_syndrome_idx = np.argwhere(syndrome>0)[:,0]
             syndrome[(d**2-1)//2:] = 2*syndrome[(d**2-1)//2:]
+            np.random.shuffle(ids)
+            # syndrome[ids[:num_mask]] = 3
             syndrome_train = np.zeros((d+1)**2 )
             syndrome_train[perm_mat] = syndrome
+            syndrome_train[perm_mat[ids[:num_mask]]] = 3
+            # recovery_x, recovery_z = decoder(d, stab_matrices, active_syndrome_idx)
 
-            recovery_x, recovery_z = decoder(d, stab_matrices, active_syndrome_idx)
-
-            err_rec = np.copy(err_vec)
-            err_rec[recovery_z] += 1
-            err_rec[d**2 + recovery_x] += 1
-            err_rec %= 2
+            # err_rec = np.copy(err_vec)
+            # err_rec[recovery_z] += 1
+            # err_rec[d**2 + recovery_x] += 1
+            # err_rec %= 2
 
         # checking if there is a logical error
-            logical_err_list = (logicals@ (comm_mat @ err_rec) % 2)
+            # logical_err_list = (logicals@ (comm_mat @ err_rec) % 2)
         
             qlist['errors'] = err_dict 
-            # qlist['input'] = syndrome.tolist() 
+            qlist['target'] = syndrome[ids[:num_mask]].tolist()
+            qlist['mask'] = perm_mat[ids[:num_mask]].tolist() 
+            # print(syndrome[ids[:num_mask]])
+            # print("syndrome_train before: ", syndrome_train[perm_mat[ids[:num_mask]]])
+            # syndrome_train[perm_mat[ids[:num_mask]]] = 3
             qlist['input'] = syndrome_train.tolist() 
-            qlist['target'] = logical_err_list.tolist()
+            # print("syndrome_train after: ", syndrome_train[perm_mat[ids[:num_mask]]])
 
+            # print("mask: ", qlist['mask'])
+            # print("input: ", qlist['input'])
+            # print("target: ", qlist['target'])
+            
             # Serializing json
             json_file.write(json.dumps(qlist) + '\n')
             # print("Done!")
 
-d_list = [7] # code distance, must be an odd number 
+d_list = [5] # code distance, must be an odd number 
 Niter = 1000 # number of random iterations for error
 p_err_list =  [0.15] # np.arange(0.01,0.31,0.01) # 
+num_mask = 4
 for p_err in p_err_list:
     # p_err = 0.15 # error probability (depolarizing channel)
     for d in d_list:
@@ -71,7 +82,7 @@ for p_err in p_err_list:
         # q_func = lambda t,r,c,i: int(((d-1)/2+r*(i+1)+1)*(t*d+(1-t)) -1 + 2*c*(d*(1-t)-t))
         # # ancilla indices as defined in the paper
         # a_func = lambda t,r,c,i: int((d**2-1)/4*(1+2*t) + ((r-1)/2+r*i)*(d+1)/2 +c )
-        # fname = f"datasets/train_enc_d_{d}_p_{p_err:.2f}.json"
-        fname = f"datasets/val_enc_d_{d}_p_{p_err:.2f}.json"
+        # fname = f"datasets/train_enc_mask_{num_mask}_d_{d}_p_{p_err:.2f}.json"
+        fname = f"datasets/val_enc_mask_{num_mask}_d_{d}_p_{p_err:.2f}.json"
         # fname = f"datasets/test_enc_d_{d}_p_{p_err:.2f}.json"
         data_file_gen(d,fname)
