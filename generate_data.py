@@ -56,7 +56,7 @@ def data_file_gen(d,JSON_PATH):
             json_file.write(json.dumps(qlist) + '\n')
             # print("Done!")
 
-d_list = [3] # code distance, must be an odd number 
+d_list = [3,5,7,9] # code distance, must be an odd number 
 Niter = 1000 # number of random iterations for error
 p_err_list = np.arange(0.01,0.31,0.01)
 for p_err in p_err_list:
