@@ -69,8 +69,8 @@ def data_file_gen(d_list,JSON_PATH):
                 json_file.write(json.dumps(qlist) + '\n')
                 # print("Done!")
 
-d_max = 9
-d_list = [5,7,9] # code distance, must be an odd number 
+d_max = 11
+d_list = [5,7,9,11] # code distance, must be an odd number 
 # Niter_list = [300000,300000,300000,300000]  # number of random iterations for error
 # Niter_list = [100,10000,10000]  # number of random iterations for error
 Niter = 100000

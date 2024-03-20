@@ -191,3 +191,31 @@ def spiral_coord(d, stab_matrices):
         perm_mat[int(idx)] = spiral[sz_list[idx]]
 
     return perm_mat 
+
+def snake_coord(d, stab_matrices):
+
+    x0 = -d/2
+    y0= -d/2
+    snake = {}
+    counter = 0
+    for _ in range(1, d+1, 2):
+        x_vec = np.arange(x0,x0+d+1)
+        for x_coord in x_vec:
+            snake[(x_coord,y0)] = counter
+            counter += 1
+        y0 += 1
+
+        x_vec = np.arange(x0+d,x0-1,-1)
+        for x_coord in x_vec:
+            snake[(x_coord,y0)] = counter
+            counter += 1
+        y0 += 1
+
+    _, _, sx_list, sz_list = stab_matrices
+    perm_mat = np.zeros(d**2-1, dtype=np.int32)
+    for idx in sx_list:
+        perm_mat[int(idx)] = snake[sx_list[idx]]
+    for idx in sz_list:
+        perm_mat[int(idx)] = snake[sz_list[idx]]
+
+    return perm_mat 
