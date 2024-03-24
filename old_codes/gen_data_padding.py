@@ -70,12 +70,12 @@ def data_file_gen(d,JSON_PATH):
             # print("Done!")
 
 # d_max = 7
-d_list = [3,13] # code distance, must be an odd number 
-Niter = 2400 # number of random iterations for error
-p_err_list =  [0.15] #np.arange(0.01,0.31,0.01) # 
+d_list = [5,7] # code distance, must be an odd number 
+Niter = 100000 # number of random iterations for error
+p_err_list =  np.arange(0.01,0.31,0.01) # 
 for p_err in p_err_list:
     for d in d_list:
         # fname = f"datasets/train_enc_pad_d_{d}_p_{p_err:.2f}.json"
-        fname = f"datasets/val_enc_pad_d_{d}_p_{p_err:.2f}.json"
-        # fname = f"datasets/test_enc_pad_d_{d}_p_{p_err:.2f}.json"
+        # fname = f"datasets/val_enc_pad_d_{d}_p_{p_err:.2f}.json"
+        fname = f"datasets/test_enc_pad_d_{d}_p_{p_err:.2f}.json"
         data_file_gen(d,fname)
