@@ -67,38 +67,38 @@ def data_file_gen(d,JSON_PATH):
             json_file.write(json.dumps(qlist) + '\n')
             # print("Done!")
 
-### training data
-tic = time.time()
-d_list = [5,7,9,11] # code distance, must be an odd number 
-Niter = 200000 # number of random iterations for error
-p_err_list =  [0.1] #np.arange(0.01,0.31,0.01) # 
-for p_err in p_err_list:
-    for d in d_list:
-        fname = f"datasets/train_spiral_eos_d_{d}_p_{p_err:.2f}.json"
-        data_file_gen(d,fname)
-toc = time.time()
-print(f"training data generation is complete, {toc-tic} sec.")
-
-### validation data
-tic = time.time()
+# ### training data
+# tic = time.time()
 # d_list = [5,7,9,11] # code distance, must be an odd number 
-Niter = 10000 # number of random iterations for error
-p_err_list =  [0.15] #np.arange(0.01,0.31,0.01) # 
-for p_err in p_err_list:
-    for d in d_list:
-        fname = f"datasets/val_spiral_eos_d_{d}_p_{p_err:.2f}.json"
-        data_file_gen(d,fname)
-toc = time.time()
-print(f"val data generation is complete, {toc-tic} sec.")
+# Niter = 200000 # number of random iterations for error
+# p_err_list =  [0.1] #np.arange(0.01,0.31,0.01) # 
+# for p_err in p_err_list:
+#     for d in d_list:
+#         fname = f"datasets/train_spiral_eos_d_{d}_p_{p_err:.2f}.json"
+#         data_file_gen(d,fname)
+# toc = time.time()
+# print(f"training data generation is complete, {toc-tic} sec.")
+
+# ### validation data
+# tic = time.time()
+# # d_list = [5,7,9,11] # code distance, must be an odd number 
+# Niter = 10000 # number of random iterations for error
+# p_err_list =  [0.15] #np.arange(0.01,0.31,0.01) # 
+# for p_err in p_err_list:
+#     for d in d_list:
+#         fname = f"datasets/val_spiral_eos_d_{d}_p_{p_err:.2f}.json"
+#         data_file_gen(d,fname)
+# toc = time.time()
+# print(f"val data generation is complete, {toc-tic} sec.")
 
 ### test data
 tic = time.time()
-# d_list = [5,7,9,11] # code distance, must be an odd number 
-Niter = 10000 # number of random iterations for error
-p_err_list =  np.arange(0.01,0.31,0.01) # 
+d_list = [5,7,9,11] # code distance, must be an odd number 
+Niter = 100000 # number of random iterations for error
+p_err_list =  np.arange(0.008,0.21,0.008) # 
 for p_err in p_err_list:
     for d in d_list:
-        fname = f"datasets/test_spiral_eos_d_{d}_p_{p_err:.2f}.json"
+        fname = f"datasets/test_spiral_eos_d_{d}_p_{p_err:.3f}.json"
         data_file_gen(d,fname)
 toc = time.time()
 print(f"test data generation is complete, {toc-tic} sec.")
