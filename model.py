@@ -140,7 +140,7 @@ class Encoder(nn.Module):
         # each token directly reads off the logits for the next token from a lookup table
         self.hyper_params = hyper_params
         self.token_embdding_table = nn.Embedding(self.hyper_params["vocab_size"], self.hyper_params["n_embd"])
-        self.position_embdding_table = nn.Embedding(self.hyper_params["block_size"], self.hyper_params["n_embd"])
+        # self.position_embdding_table = nn.Embedding(self.hyper_params["block_size"], self.hyper_params["n_embd"])
         self.blocks = nn.ModuleList([Block(self.hyper_params) for _ in range(self.hyper_params["n_layer"])])
         self.ln_f = nn.LayerNorm(self.hyper_params["n_embd"]) # final layer norm
         self.lm_head = nn.Linear(self.hyper_params["n_embd"], 2)
