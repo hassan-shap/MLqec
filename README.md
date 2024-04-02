@@ -2,7 +2,7 @@
 
 Warm-up examples:
 
-Trying to reproduce the following papers and more.
+Relevant papers:
 
 https://arxiv.org/abs/2202.05741
 
